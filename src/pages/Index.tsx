@@ -1,4 +1,4 @@
-import { Header } from "@/components/dashboard/Header";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsBar } from "@/components/dashboard/StatsBar";
 import { SensorCard } from "@/components/dashboard/SensorCard";
 import { RobotPanel } from "@/components/dashboard/RobotPanel";
@@ -12,31 +12,25 @@ const robotPositions = [
 ];
 
 const Index = () => (
-  <div className="min-h-screen bg-background">
-    <Header />
-    <main className="p-4 lg:p-6 space-y-5 max-w-[1600px] mx-auto">
-      <StatsBar />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Sensor readings */}
-        <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3">
-          {sensorReadings.map(sensor => (
-            <SensorCard key={sensor.id} sensor={sensor} />
-          ))}
-        </div>
-        <RobotPanel robots={robots} />
+  <DashboardLayout>
+    <StatsBar />
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3">
+        {sensorReadings.map(sensor => (
+          <SensorCard key={sensor.id} sensor={sensor} />
+        ))}
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-        <div className="lg:col-span-3">
-          <ServerRoomMap racks={serverRacks} robotPositions={robotPositions} />
-        </div>
-        <div className="lg:col-span-2">
-          <AlertsPanel alerts={alerts} />
-        </div>
+      <RobotPanel robots={robots} />
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+      <div className="lg:col-span-3">
+        <ServerRoomMap racks={serverRacks} robotPositions={robotPositions} />
       </div>
-    </main>
-  </div>
+      <div className="lg:col-span-2">
+        <AlertsPanel alerts={alerts} />
+      </div>
+    </div>
+  </DashboardLayout>
 );
 
 export default Index;
