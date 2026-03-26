@@ -1,16 +1,42 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Header } from "@/components/dashboard/Header";
+import { StatsBar } from "@/components/dashboard/StatsBar";
+import { SensorCard } from "@/components/dashboard/SensorCard";
+import { RobotPanel } from "@/components/dashboard/RobotPanel";
+import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
+import { ServerRoomMap } from "@/components/dashboard/ServerRoomMap";
+import { sensorReadings, alerts, robots, serverRacks } from "@/data/mockData";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
-  return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
-  );
-};
+const robotPositions = [
+  { row: 0, col: 2, name: 'DCR-01' },
+  { row: 1, col: 5, name: 'DCR-03' },
+];
 
-const Index = PlaceholderIndex;
+const Index = () => (
+  <div className="min-h-screen bg-background">
+    <Header />
+    <main className="p-4 lg:p-6 space-y-5 max-w-[1600px] mx-auto">
+      <StatsBar />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Sensor readings */}
+        <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3">
+          {sensorReadings.map(sensor => (
+            <SensorCard key={sensor.id} sensor={sensor} />
+          ))}
+        </div>
+        <RobotPanel robots={robots} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        <div className="lg:col-span-3">
+          <ServerRoomMap racks={serverRacks} robotPositions={robotPositions} />
+        </div>
+        <div className="lg:col-span-2">
+          <AlertsPanel alerts={alerts} />
+        </div>
+      </div>
+    </main>
+  </div>
+);
 
 export default Index;
