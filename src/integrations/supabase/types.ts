@@ -20,7 +20,6 @@ export type Database = {
           id: string
           location: string
           message: string
-          resolution_notes: string | null
           resolved: boolean
           resolved_at: string | null
           resolved_by: string | null
@@ -32,7 +31,6 @@ export type Database = {
           id?: string
           location: string
           message: string
-          resolution_notes?: string | null
           resolved?: boolean
           resolved_at?: string | null
           resolved_by?: string | null
@@ -44,7 +42,6 @@ export type Database = {
           id?: string
           location?: string
           message?: string
-          resolution_notes?: string | null
           resolved?: boolean
           resolved_at?: string | null
           resolved_by?: string | null
