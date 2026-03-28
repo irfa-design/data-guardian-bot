@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { Wrench, Plus } from "lucide-react";
+import { Wrench, Plus, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 const priorityColor: Record<string, string> = { low: "text-muted-foreground", medium: "text-primary", high: "text-warning", critical: "text-destructive" };
 const statusColor: Record<string, string> = { open: "bg-primary/10 text-primary", in_progress: "bg-warning/10 text-warning", resolved: "bg-success/10 text-success", closed: "bg-secondary text-muted-foreground" };
@@ -22,13 +23,14 @@ const MaintenancePage = () => {
   const [form, setForm] = useState({ title: "", description: "", priority: "medium", location: "" });
   const { user } = useAuth();
 
-  const fetch = async () => {
+  const fetchTickets = useCallback(async () => {
     const { data } = await supabase.from("maintenance_tickets").select("*").order("created_at", { ascending: false });
     setTickets(data || []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => { fetchTickets(); }, [fetchTickets]);
+  useRealtimeSubscription("maintenance_tickets", fetchTickets);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,12 +39,10 @@ const MaintenancePage = () => {
     toast.success("Ticket created");
     setOpen(false);
     setForm({ title: "", description: "", priority: "medium", location: "" });
-    fetch();
   };
 
   const updateStatus = async (id: string, status: string) => {
     await supabase.from("maintenance_tickets").update({ status }).eq("id", id);
-    fetch();
   };
 
   return (
@@ -51,6 +51,8 @@ const MaintenancePage = () => {
         <div className="flex items-center gap-2">
           <Wrench className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">Maintenance Tickets</h1>
+          <Wifi className="h-3 w-3 text-success animate-pulse ml-2" />
+          <span className="text-xs font-mono text-success">LIVE</span>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> New Ticket</Button></DialogTrigger>
@@ -83,7 +85,7 @@ const MaintenancePage = () => {
         {loading ? <p className="text-muted-foreground">Loading...</p> :
           tickets.length === 0 ? <div className="rounded-lg border bg-card p-12 text-center text-muted-foreground">No maintenance tickets yet.</div> :
           tickets.map(t => (
-            <div key={t.id} className="rounded-lg border bg-card p-4 flex items-start gap-4">
+            <div key={t.id} className="rounded-lg border bg-card p-4 flex items-start gap-4 transition-all hover:border-primary/20">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-semibold text-foreground">{t.title}</h3>

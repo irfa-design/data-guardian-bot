@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { Thermometer, Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { Thermometer, Plus, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,22 +9,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const SensorLogs = () => {
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ sensor_name: "", sensor_type: "temperature", value: "", unit: "°C", location: "", status: "normal" });
-  const { user } = useAuth();
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     const { data } = await supabase.from("sensor_logs").select("*").order("recorded_at", { ascending: false }).limit(100);
     setLogs(data || []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetchLogs(); }, []);
+  useEffect(() => { fetchLogs(); }, [fetchLogs]);
+  useRealtimeSubscription("sensor_logs", fetchLogs);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,10 +34,16 @@ const SensorLogs = () => {
     toast.success("Sensor log recorded");
     setOpen(false);
     setForm({ sensor_name: "", sensor_type: "temperature", value: "", unit: "°C", location: "", status: "normal" });
-    fetchLogs();
   };
 
   const statusColor = (s: string) => s === "critical" ? "text-destructive" : s === "warning" ? "text-warning" : "text-success";
+
+  // Build mini chart data grouped by sensor
+  const chartData = logs.slice(0, 20).reverse().map((l, i) => ({
+    idx: i,
+    value: Number(l.value),
+    name: l.sensor_name,
+  }));
 
   return (
     <DashboardLayout>
@@ -44,6 +51,8 @@ const SensorLogs = () => {
         <div className="flex items-center gap-2">
           <Thermometer className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">Sensor Logs</h1>
+          <Wifi className="h-3 w-3 text-success animate-pulse ml-2" />
+          <span className="text-xs font-mono text-success">LIVE</span>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Add Reading</Button></DialogTrigger>
@@ -84,6 +93,21 @@ const SensorLogs = () => {
         </Dialog>
       </div>
 
+      {/* Mini trend chart */}
+      {chartData.length > 0 && (
+        <div className="rounded-lg border bg-card p-4">
+          <h3 className="text-xs font-mono text-muted-foreground mb-2 uppercase">Recent Sensor Trend</h3>
+          <ResponsiveContainer width="100%" height={120}>
+            <LineChart data={chartData}>
+              <XAxis dataKey="idx" hide />
+              <YAxis hide domain={["auto", "auto"]} />
+              <Tooltip contentStyle={{ background: "hsl(220, 18%, 10%)", border: "1px solid hsl(220, 15%, 18%)", borderRadius: 8, fontSize: 12 }} />
+              <Line type="monotone" dataKey="value" stroke="hsl(185, 80%, 50%)" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
       <div className="rounded-lg border bg-card">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -101,9 +125,9 @@ const SensorLogs = () => {
               {loading ? (
                 <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">Loading...</td></tr>
               ) : logs.length === 0 ? (
-                <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No sensor logs yet. Add your first reading!</td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No sensor logs yet.</td></tr>
               ) : logs.map(log => (
-                <tr key={log.id} className="border-b border-border/50 hover:bg-secondary/30">
+                <tr key={log.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
                   <td className="p-3 font-mono font-medium text-foreground">{log.sensor_name}</td>
                   <td className="p-3 text-muted-foreground capitalize">{log.sensor_type}</td>
                   <td className="p-3 text-right font-mono font-bold text-foreground">{log.value} <span className="text-muted-foreground text-xs">{log.unit}</span></td>
