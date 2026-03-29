@@ -47,7 +47,9 @@ const SensorLogs = () => {
           <Thermometer className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">Sensor Logs</h1>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => exportCSV(logs, "sensor_logs")}><Download className="h-4 w-4 mr-1" /> Export</Button>
+          <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Add Reading</Button></DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Record Sensor Reading</DialogTitle></DialogHeader>
