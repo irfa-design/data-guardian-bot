@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { Thermometer, Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { Thermometer, Plus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useExportCSV } from "@/hooks/useExportCSV";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
