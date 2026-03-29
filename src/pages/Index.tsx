@@ -31,7 +31,7 @@ const Index = () => {
           status: r.status as RobotStatus["status"],
           location: r.location,
           uptime: `${r.uptime_hours}h`,
-          lastInspection: r.last_inspection ? new Date(r.last_inspection).toRelativeTimeString?.() || 'Recently' : 'N/A',
+          lastInspection: r.last_inspection ? 'Recently' : 'N/A',
           tasksCompleted: r.tasks_completed || 0,
         })));
       }
