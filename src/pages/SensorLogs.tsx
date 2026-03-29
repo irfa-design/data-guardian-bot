@@ -86,6 +86,7 @@ const SensorLogs = () => {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="rounded-lg border bg-card">
