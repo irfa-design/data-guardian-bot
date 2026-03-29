@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { Thermometer, Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { Thermometer, Plus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useExportCSV } from "@/hooks/useExportCSV";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -12,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
 const SensorLogs = () => {
+  const exportCSV = useExportCSV();
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -45,7 +47,9 @@ const SensorLogs = () => {
           <Thermometer className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">Sensor Logs</h1>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => exportCSV(logs, "sensor_logs")}><Download className="h-4 w-4 mr-1" /> Export</Button>
+          <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Add Reading</Button></DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Record Sensor Reading</DialogTitle></DialogHeader>
@@ -82,6 +86,7 @@ const SensorLogs = () => {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="rounded-lg border bg-card">

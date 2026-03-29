@@ -1,6 +1,7 @@
 import { AlertTriangle, Info, XCircle, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Alert } from "@/data/mockData";
+import { alerts as mockAlerts } from "@/data/mockData";
 
 const severityConfig = {
   critical: { icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/10', border: 'border-destructive/30' },
@@ -8,9 +9,10 @@ const severityConfig = {
   info: { icon: Info, color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/30' },
 };
 
-export const AlertsPanel = ({ alerts }: { alerts: Alert[] }) => {
-  const active = alerts.filter(a => !a.resolved);
-  const resolved = alerts.filter(a => a.resolved);
+export const AlertsPanel = ({ alerts }: { alerts?: Alert[] }) => {
+  const displayAlerts = alerts || mockAlerts;
+  const active = displayAlerts.filter(a => !a.resolved);
+  const resolved = displayAlerts.filter(a => a.resolved);
 
   return (
     <div className="rounded-lg border bg-card p-5">
